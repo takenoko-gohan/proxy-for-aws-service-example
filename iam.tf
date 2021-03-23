@@ -33,7 +33,31 @@ resource "aws_iam_policy" "s3" {
   })
 }
 
+resource "aws_iam_policy" "sqs" {
+  name = "sqs-proxy-test-policy"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "",
+        Effect = "Allow",
+        Action = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage"
+        ],
+        Resource = aws_sqs_queue.proxy_test.arn
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "api_gateway_role_01" {
   role       = aws_iam_role.api_gateway_role.name
   policy_arn = aws_iam_policy.s3.arn
+}
+
+resource "aws_iam_role_policy_attachment" "api_gateway_role_02" {
+  role       = aws_iam_role.api_gateway_role.name
+  policy_arn = aws_iam_policy.sqs.arn
 }
